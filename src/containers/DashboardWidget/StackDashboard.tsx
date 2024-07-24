@@ -1,60 +1,97 @@
-import React, { useCallback, useState } from "react";
-import localeTexts from "../../common/locales/en-us/index";
-import parse from "html-react-parser";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import { useAppConfig } from "../../common/hooks/useAppConfig";
+import { useAppSdk } from '../../common/hooks/useAppSdk';
 import "../index.css";
 import "./StackDashboard.css";
-import Icon from "../../assets/Custom-Field-Logo.svg";
-import ReadOnly from "../../assets/lock.svg";
-import JsonView from "../../assets/JsonView.svg";
-import ConfigModal from "../../components/ConfigModal/ConfigModal";
 
 const StackDashboardExtension = () => {
   const appConfig = useAppConfig();
-  const [isRawConfigModalOpen, setRawConfigModalOpen] = useState<boolean>(false);
+  console.log("appConfig", appConfig);
 
-  const handleViewRawConfig = useCallback(() => {
-    setRawConfigModalOpen(true);
-  }, []);
+  const [assetUID, setAssetUID] = useState("");
+  const [contentType, setContentType] = useState("");
+  const [entryUID, setEntryUID] = useState("");
+  const [error, setError] = useState("");
+  const appSDK = useAppSdk();
 
-  const handleCloseModal = useCallback(() => {
-    setRawConfigModalOpen(false);
-  }, []);
 
-  const sampleAppConfig = appConfig?.["sample_app_configuration"] || "";
-  const trimmedSampleAppConfig =
-    sampleAppConfig.length > 17 ? `${sampleAppConfig.substring(0, 17)}...` : sampleAppConfig;
+  useEffect(() => {
+    const stack = appSDK?.stack
+    const branch = stack?.getAllBranches()
+    branch && console.log('branch', branch);
+
+    const allStack = stack?.getAllStacks()
+    branch && console.log('allStack', allStack);
+
+    const env = stack?.getEnvironments()
+    branch && console.log('env', env);
+
+    const local = stack?.getLocales()
+    branch && console.log('local', local);
+
+    const workflow = stack?.getWorkflows()
+    branch && console.log('workflow', workflow);
+
+    const global = stack?.getGlobalFields()
+    branch && console.log('global', global);
+
+  }, [])
+
+  useEffect(() => {
+    if (!error) return
+    setTimeout(() => {
+      setError('')
+    }, 1500)
+  }, [error])
+
+  const onSubmit = async () => {
+    try {
+      if (assetUID) {
+        const asset = await appSDK?.stack?.Asset.getAsset(assetUID).fetch()
+        console.log('asset', asset);
+      }
+      if (contentType && entryUID) {
+        const entry = await appSDK?.stack?.ContentType(contentType).Entry(entryUID).fetch()
+        console.log('entry', entry);
+      }
+    } catch (error: any) {
+      console.error('error while fetching', error);
+      setError("something went wrong while fetching");
+    }
+  }
+
+  const onAssetUIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // setTimeout
+    setAssetUID(e.target.value);
+  }
 
   return (
     <div className="layout-container">
       <div className="ui-location">
-        <div className="ui-container">
-          <div className="logo-container">
-            <img src={Icon} alt="Logo" />
-            <p>{localeTexts.DashboardWidget.title}</p>
-          </div>
-          <div className="config-container">
-            <div className="label-container">
-              <p className="label">Sample App Configuration</p>
-              <p className="info">(read only)</p>
-            </div>
-            <div className="input-wrapper">
-              <div className="input-container">
-                <p className="config-value">{trimmedSampleAppConfig}</p>
-                <img src={ReadOnly} alt="ReadOnlyLogo" />
-              </div>
+        <div className='asset-uid'>
+          <label htmlFor='asset-input' className='asset-input'>
+            <span>Asset UID</span>
+            <input name='asset-input' type='text' value={assetUID} onChange={onAssetUIDChange} />
+          </label>
+          <label htmlFor='entry' className='entry-inputs'>
+            <span>Content Type UID</span>
+            <input name='entry' type='text' value={contentType} onChange={(e) => { setContentType(e.target.value) }} />
 
-              <img src={JsonView} alt="Show-Json-CTA" className="show-json-cta" onClick={handleViewRawConfig} />
-              {isRawConfigModalOpen && appConfig && <ConfigModal config={appConfig} onClose={handleCloseModal} />}
-            </div>
-          </div>
-          <div className="location-description">
-            <p className="location-description-text">{parse(localeTexts.DashboardWidget.body)}</p>
-            <a target="_blank" rel="noreferrer" href={localeTexts.DashboardWidget.button.url}>
-              <span className="location-description-link">{localeTexts.DashboardWidget.button.text}</span>
-            </a>
+            <span style={{ opacity: contentType ? 1 : 0.5 }}>Entry UID</span>
+            <input style={{ opacity: contentType ? 1 : 0.5 }} name='entry' type='text' value={entryUID} onChange={(e) => { setEntryUID(e.target.value) }} disabled={!contentType} />
+          </label>
+          <div className='button-group'>
+            <button disabled={!((assetUID !== "" && contentType === "" && entryUID === "") || (assetUID === "" && contentType !== "" && entryUID !== ""))} onClick={onSubmit}>Fetch</button>
+           <button onClick={() => {
+              setAssetUID('')
+              setContentType('')
+              setEntryUID('')
+              setError('')
+            }}>clear</button>
           </div>
         </div>
+        {<div className='error' style={{ opacity: error ? 1 : 0, transition: "opacity 200ms ease-out" }}>{error} </div>}
       </div>
     </div>
   );

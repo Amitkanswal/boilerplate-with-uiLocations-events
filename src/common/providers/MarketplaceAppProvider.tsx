@@ -44,9 +44,9 @@ export const MarketplaceAppProvider: React.FC<ProviderProps> = ({ children }) =>
 
   // wait until the SDK is initialized. This will ensure the values are set
   // correctly for appSdk.
-  if (!failed && isNull(appSdk)) {
-    return <div>Loading...</div>;
-  }
+  // if (!failed && isNull(appSdk)) {
+  //   return <div>Loading...</div>;
+  // }
 
   if (failed) {
     return <AppFailed />;

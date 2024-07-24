@@ -344,3 +344,20 @@ not used in app config field , Sidebar
   white-space: pre;
   text-align: left;
 }
+
+.asset-uid, .asset-input, .entry-inputs{
+  display: flex;
+  flex-direction: column;
+  padding: 0.8rem 0rem;
+}
+
+.button-group{
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.error{
+  color: red;
+  font-size: 0.875rem;
+}

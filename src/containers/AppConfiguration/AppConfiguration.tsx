@@ -1,15 +1,24 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Icon from "../../assets/GearSix.svg";
 import localeTexts from "../../common/locales/en-us/index";
 import parse from "html-react-parser";
 import styles from "./AppConfiguration.module.css";
 import { useInstallationData } from "../../common/hooks/useInstallationData";
 import Tooltip from "../Tooltip/Tooltip";
+import { useAppSdk } from '../../common/hooks/useAppSdk';
 
 const AppConfigurationExtension: React.FC = () => {
   const { installationData, setInstallationData } = useInstallationData();
   const appConfigDataRef = useRef<HTMLInputElement>(null);
   const serverConfigDataRef = useRef<HTMLInputElement>(null);
+  const appSDK = useAppSdk();
+
+useEffect(() => {
+  appSDK?.location.AppConfigWidget?.installation.getInstallationData().then((data) => {
+    console.log("AppConfigWidget getInstallationData", data);
+    
+  });
+},[])
 
   const updateConfig = async () => {
     if (typeof setInstallationData !== "undefined") {
