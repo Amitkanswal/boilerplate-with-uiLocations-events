@@ -36,15 +36,15 @@ const useProcessEvent = () => {
       return eventObj;
     }
     
-    if (eventName === "getAllStacks" || preRequestEvent.hasOwnProperty(`${eventName}s`)) {
+    if (eventName === "AllStacks" || preRequestEvent.hasOwnProperty(`${eventName}s`)) {
       const requiredData = preRequestEvent[`${eventName}s`];
       if (!requiredData) {
         eventObj.status = <StatusPill status="skip" />;
         eventObj.response = requiredData;
       } else {
-        const result = eventName === "getAllStacks"
+        const result = eventName === "AllStacks"
           ? //@ts-ignore
-           await stack.getAllStacks(preRequestEvent["getAllStacks"])
+           (await stack.getAllStacks(preRequestEvent["AllStacks"]))[0]
           : //@ts-ignore
            await stack[eventName](preRequestEvent[`${eventName}s`]);
         console.info(locationName, "-", eventName, ":", result);

@@ -8,11 +8,6 @@ import StatusPill from '../../components/TestTableComponent/StatusPill';
 import { useExtensionEvents } from '../../common/hooks/useExtensionEvents';
 
 const AssetSidebarExtension = () => {
-  const appConfig = useAppConfig();
-  const [assetUID, setAssetUID] = useState("");
-  const [contentType, setContentType] = useState("");
-  const [entryUID, setEntryUID] = useState("");
-  const [error, setError] = useState("");
   const appSDK = useAppSdk();
 
   const assetSideBarEvent = useExtensionEvents();
@@ -55,7 +50,8 @@ const AssetSidebarExtension = () => {
         })
       })
     });
-
+    console.log("appSDK", appSDK);
+    
     appSDK?.location.AssetSidebarWidget?.onUnPublish((data) => {
       console.log("AssetSidebarWidget onUnPublish", data);
       setLocalState((prev) => {
@@ -70,29 +66,6 @@ const AssetSidebarExtension = () => {
 
   }, [])
 
-  const onSubmit = async () => {
-    try {
-      if (assetUID) {
-        const asset = await appSDK?.stack?.Asset.getAsset(assetUID).fetch()
-        console.log('asset', asset);
-      }
-      if (contentType && entryUID) {
-        const entry = await appSDK?.stack?.ContentType(contentType).Entry(entryUID).fetch()
-        console.log('entry', entry);
-      }
-    } catch (error: unknown) {
-      console.error('error while fetching', error);
-      setError("something went wrong while fetching");
-    }
-  }
-
-  const onAssetUIDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // setTimeout
-    setAssetUID(e.target.value);
-  }
-  const sampleAppConfig = appConfig?.["sample_app_configuration"] || "";
-  const trimmedSampleAppConfig =
-    sampleAppConfig.length > 13 ? `${sampleAppConfig.substring(0, 13)}...` : sampleAppConfig;
 
   return (
     <div className="layout-container">

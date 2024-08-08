@@ -40,7 +40,6 @@ export const TestTableComponent: React.FC <TestTableComponentProps> = ({initEven
   const [index, setIndex] = useState(generateIsLoadingArray(methodNames.length));
   const preRequests = usePreRequests();
   const processEvent = useProcessEvent();
-
   const initialData = useMemo(() => {
     return methodNames.map(name => ({
       eventName: name,
@@ -81,6 +80,7 @@ export const TestTableComponent: React.FC <TestTableComponentProps> = ({initEven
     (async () => {
       const preRequestEvent = await preRequests;
       eventName.forEach(async ({ eventName }, idx) => {
+        // these events should be coming from UI locations as they need CBs
         if (["onChange", "onSave", "onPublish", "onUnPublish"].includes(eventName)) {
           return;
           
